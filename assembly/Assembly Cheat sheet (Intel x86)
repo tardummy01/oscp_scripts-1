@@ -1,0 +1,63 @@
+4 Base Registers
+(typically used as temporary variables)
+
+EAX - Accumulator
+EBX - Base
+ECX - Counter
+EDX - Data
+
+Secondary Registers
+(pointers and indexes. Pointers are used for memory management, indexes are used to point to source and destination date to read or write to and from)
+ESP - Stack Pointer
+EBP - Base Pointer
+ESI - Source Index
+EDI - Destination Index
+
+Instruction Pointer 
+EIP - Instruction Pointer - points at current instruction being read. use in conjuntion with break points to read update of program data as it progresses 
+_______________________________________________
+Assemby Syntax
+operation <destination>, <source>
+_______________________________________________
+GDP debugging
+
+Shorthand 
+
+Commands
+-----
+x == examine (takes commands in format <x / (display_number & display_format) $location>)
+note. location can be referenced using registers
+
+	display_format shorthand
+	o == octal
+	x == hexidecimal
+	u == unsigned, standard base 10 decimal
+	t == binary
+
+	display_unit_size shorthand (a unit is 4 bytes in size)
+	b == byte
+	h == halfword or short, two bytes in size
+	w == word or DWORD, four bytes in size
+	g == giant, eight bytes in size
+
+
+	All registers can be referenced to check value.
+	eg x/12xw $eip
+	This would examine the next twelve units of memory (in units of 4 bytes) in hexidecimal
+
+	note, in x86, all data is stored little-endian byte order, so if bytes are stored as a unit, they are stored in least significant order first (so they are interpreted in reverse )
+
+
+-----
+Other commands / modifiers
+
+i == info - will show associated human readable assembly -MODIFIER for examine 
+r == register - references currently set register (eg for break points EIP), or to set new register as target
+info registers - will show all registers and their memory addresses. 
+quit - will quit
+set dis intel - set syntax to intel syntax
+break <target> - sets break point at target function.
+nexti - moves EIP to next instruction
+
+
+
