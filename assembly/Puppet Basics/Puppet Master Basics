@@ -1,0 +1,131 @@
+Puppet Master Basics
+
+1) update following on Puppet master
+$ /etc/hosts/
+
+Inset hostname into local host account
+
+Eg: Before
+127.0.0.1       localhost.localdomain localhost
+::1             localhost6.localdomain6 localhost6
+After:
+127.0.0.1               adammim1.mylabserver.com localhost.localdomain localhost
+::1             localhost6.localdomain6 localhost6
+
+Downlaod and install puppet enterprise.
+Use FQDN specified above in installation.
+
+Navigate to FQDN once install has occured to use GUi install. 
+
+Ensure PermitRootLogin is set to 'yes' under $ etc/ssh/sshd_config and uncommented (remove #). 
+Then reboot ssh. >$ service sshd restart
+
+Install using default options. Set SMTP as localhost / or as SMTP server. 
+
+
+For any remote machines, PermitRootLogin must be allowed. 
+
+Install Puppet on remote machines
+on centos
+
+ - make sure you reference the correct OS for the below. https://docs.puppetlabs.com/guides/puppetlabs_package_repositories.html
+$ rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
+$ yum install puppet
+
+$ puppet agent -t
+This will attempt to download puppet config (will show it is installed, but still needs to be configured for this to work)
+
+$vi /etc/puppet/puppet.conf
+
+Update "server=" to FQDD
+eg
+server=adammim1.mylabserver.com
+
+Set up Server to auto-sign certificate requests.
+
+Some commands
+to sign a specific server
+puppet cert sign adammim2.mylabserver.com
+or to sign all
+puppet cert sign --all
+
+to wait for cert on agent so you can approve on master
+puppet agent --waitforcert 60
+
+puppet agent -t will now work.
+
+To configure puppet classes, CD to /etc/puppetlabs/puppet/modules (Puppet Enterprise) or /etc/puppet/modules (Community)
+
+In dir, create new folder for config
+eg. mkdir motd
+then make additional dirs as sub folders
+cd motd
+mkdir {files,manifests,templates,tests}
+
+We will now create class in manifests file (manfiests are used to specifiy what should happen in a node)
+cd manifest
+vi init.pp (first file in new class should always be init.pp)
+
+We can now create a class for a specific file.
+Eg;
+class motd {
+	file { "/etc/motd":			#This will take a file from puppet master (/etc/motd)
+			ensure => 'file', 
+			source => "puppet:///modules/motd/motd", #Three slashes required if puppet master already defined. Look for file called motd in modules/motd directory module, for files directroy. (Eg so actually checks if file matches puppet master modules/motd/files/motd. If it does not exist, or does not match file in direcotry, it will (re)place file)
+	} 
+}
+eg: 
+class motd {
+	file { "/etc/motd":			
+			ensure => 'file', 
+			source => "puppet:///modules/motd/motd", 
+	} 
+}
+
+We can test if this worked by going to test directory.
+
+first create blank file in motd
+cd ..
+vi /files/motd
+save this file
+vi /tests/init.pp
+include motd
+Then run the below from the tests folder
+puppet apply --noop init.pp
+can then be used to test changes that needed to occur. 
+puppet apply init.pp
+We should now we able to test motd file creation.
+
+To push to node
+browse to /etc/puppetlabs/puppet/manifests
+
+vi site.pp
+Browse to node default, uncooment  #class { 'my_class': }, replace my_class with default class
+eg 
+class { 'motd': }
+
+Can then force change on remote server by running puppet agent -t
+
+Puppet Master is used to 
+- Complile and serve configuration cataolgs to agent nodes
+- issue orchestration commands via MCollective
+- availability of puppet enterprise web interface console
+- collect data and complile reports from agent nodes
+- manage environments, assign node configurations and manage code with GIT
+
+Puppet Process
+	-Install Puppet master and Puppet Agents
+	- Create Configurations (modules/classes) that declare a resources desired state
+	- Assign configuration to nodes (also known as declaring a class)
+		- Configuraitons can be assigned/ declared in the console
+		Configuations can be assigned/ declared in /etc/puppetlabs/puppet/manifests/site.pp
+
+
+Requires Ports:
+Nodes
+8140: 	puppet requests
+61613: 	orchestration requests
+
+
+
+

@@ -1,0 +1,116 @@
+Stack in x86
+
+High Address 
+.................
+-----------------
+Bottom of Stack
+-----------------
+-----------------
+-----------------
+-----------------
+-----------------
+-----------------
+-----------------
+-----------------
+-----------------
+Top of Stack     	<------- ESP Register
+-----------------
+................
+Low Address
+
+
+	||||||
+Stackl grows down
+	||||||
+VVVVVVVVVVVVVVV
+	VVVVVV
+	 VVVV
+	  VV
+
+ESP - Extended Stack Pointer (A special x86 Register), always points to Top of Stack.
+
+-------------------------------------------------------
+Push onto Stack: 
+------------------------------------------------------
+When pushing data onto stack (and thus decrement ESP), we decrease by a unit (which we know is 4 bytes), so the address space is pushed down into a LOWER address, Assigning the new address to be used to store the new value. 
+
+
+EG....
+
+If we do 
+<push eax>
+
+== (equivalent to)
+<sub esp, 4
+mov [esp], eax>
+
+This will move the ESP four bytes down, then assign EAX value to the current ESP space. 
+
+High Address 
+.................
+-----------------
+Top of Stack     	<------- ESP Register (Value = "foo", a place holder value)
+-----------------
+................
+Low Address
+
+Becomes
+
+High Address 
+.................
+-----------------
+Old Top of Stack   		
+-----------------  	
+Top of Stack  			<------- ESP Register (Value = "0xDEADBEEF", assigned from EAX register) new address space, which is 4 (bytes) large (1 Unit)
+-----------------
+................
+Low Address
+
+-------------------------------------------------------
+Pop off Stack: 
+------------------------------------------------------
+
+When popping data off stack (and thus incrementing ESP), we increment by a unit (which we know is 4 bytes), so the address space is popped up into a HIGHER address, freeing up the address to be used for assignment. 
+
+
+EG....
+
+If we do 
+<pop eax>
+
+== (equivalent to)
+<mov eax, [esp]
+add esp, 4>
+
+This will move the ESP to the current EAX value, then shift it up four units. 
+
+
+High Address 
+.................
+-----------------
+Old Top of Stack   		
+-----------------  	
+Top of Stack  			<------- ESP Register (Value = "0xDEADBEEF", originally taken from EAX register) 
+-----------------
+................
+low address
+
+Becomes
+
+High Address 
+.................
+-----------------
+Top of Stack   		<------- ESP Register (Value = "foo", a place holder value) - EAX Register now holds 0xDEADBEEF
+-----------------  	
+Old Top of Stack			(which is still assigned 0xDEADBEEF )			<------- Free  address space, which is 4 (bytes) large (1 Unit), and contains value 0xDEADBEEF
+-----------------
+................
+
+Low Address
+
+
+
+
+
+
+
