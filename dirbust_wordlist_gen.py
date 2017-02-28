@@ -16,7 +16,8 @@ for folder in folders:
         if os.path.isfile(folder + "/" + filename):
             with open(folder + "/" + filename) as infile:
                 for line in infile:
-                    allwords.append(line)
+                    if not line in allwords:
+            		    allwords.append(line)
 
 with open(filepath1, 'w') as outfile:
     for item in allwords:
